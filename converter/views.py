@@ -22,7 +22,7 @@ def upload_vtt(request):
     return render(request, 'converter/upload.html', {'form': form})
 
 import tempfile
-
+from webvtt import WebVTT
 
 def convert_vtt_to_text(vtt_content):
     # Create a temporary file to store the VTT content
@@ -37,6 +37,12 @@ def convert_vtt_to_text(vtt_content):
         # Extract text content from subtitles
         text_content = ""
         for subtitle in subtitles:
+            # Check if the subtitle has a timing cue
+            if subtitle.start is None or subtitle.end is None:
+                # Print the subtitle that is missing timing cue for debugging
+                print("Subtitle missing timing cue:", subtitle)
+                continue
+            
             # Encode the subtitle text as 'utf-8' and then decode it as 'latin-1', 
             # replacing characters that cannot be encoded
             encoded_text = subtitle.text.encode('utf-8', errors='ignore').decode('latin-1')
@@ -47,4 +53,7 @@ def convert_vtt_to_text(vtt_content):
         # Clean up: delete the temporary file
         import os
         os.unlink(temp_file.name)
+
+
+
 
